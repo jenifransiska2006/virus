@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virus Interaktif - Biologi Kelas X</title>
+<style>
+  :root{
+    --ungu:#6a1b9a;
+    --ungu-muda:#ab47bc;
+    --biru:#1565c0;
+    --biru-muda:#42a5f5;
+    --merah:#c62828;
+    --hijau:#2e7d32;
+    --kuning:#fbc02d;
+    --gelap:#1a0f2b;
+    --putih:#ffffff;
+    --latar:#f3e5f5;
+    --bayangan:0 8px 24px rgba(0,0,0,.13);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(160deg,#f3e5f5 0%,#e3f2fd 50%,#fce4ec 100%);
+    color:var(--gelap);min-height:100vh;line-height:1.6;
+  }
+  header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+    border-bottom:2px solid var(--ungu-muda);
+    padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+  }
+  .logo{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--ungu);font-size:1.1rem;}
+  .logo span{font-size:1.5rem;}
+  .progress-wrap{flex:1;min-width:140px;}
+  .progress-bar{height:14px;background:#e1bee7;border-radius:20px;overflow:hidden;border:1px solid #ce93d8;}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--ungu-muda),var(--biru-muda));border-radius:20px;transition:width .5s;}
+  .progress-label{font-size:.72rem;color:var(--ungu);font-weight:700;margin-top:2px;}
+  .poin-box{display:flex;align-items:center;gap:6px;background:var(--kuning);color:#4e342e;font-weight:800;padding:6px 14px;border-radius:30px;font-size:.9rem;box-shadow:0 3px 10px rgba(251,192,45,.4);}
+  .badge-box{display:flex;gap:4px;font-size:1.3rem;}
+  .app{max-width:1100px;margin:0 auto;padding:22px 16px 80px;}
+  .screen{display:none;animation:fadeIn .5s ease;}
+  .screen.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  h1,h2,h3{color:var(--ungu);line-height:1.3;}
+  h2{font-size:1.5rem;margin-bottom:6px;}
+  h3{font-size:1.15rem;margin:16px 0 8px;color:var(--biru);}
+  p{margin-bottom:12px;}
+  ul,ol{margin-bottom:10px;}
+  .hero{
+    text-align:center;padding:42px 20px;border-radius:var(--radius);
+    background:linear-gradient(135deg,#4a148c,#1565c0);
+    color:#fff;box-shadow:var(--bayangan);position:relative;overflow:hidden;
+  }
+  .hero h1{color:#fff;font-size:2.2rem;margin-bottom:10px;}
+  .hero p{color:#f3e5f5;max-width:640px;margin:0 auto 24px;}
+  .hero .ilustrasi{font-size:4rem;animation:float 4s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+  .btn{
+    display:inline-block;border:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--ungu),var(--ungu-muda));
+    color:#fff;font-weight:800;font-size:1rem;padding:14px 32px;border-radius:40px;
+    box-shadow:0 6px 18px rgba(106,27,154,.35);transition:transform .2s,box-shadow .2s;
+  }
+  .btn:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(106,27,154,.45);}
+  .btn:active{transform:translateY(0);}
+  .btn-biru{background:linear-gradient(135deg,var(--biru),var(--biru-muda));box-shadow:0 6px 18px rgba(21,101,192,.35);}
+  .btn-kecil{padding:9px 20px;font-size:.88rem;}
+  .btn-abu{background:#eceff1;color:#455a64;box-shadow:none;}
+  .kartu{background:var(--putih);border-radius:var(--radius);padding:20px;box-shadow:var(--bayangan);margin-bottom:18px;border-left:6px solid var(--ungu-muda);}
+  .kartu.biru{border-left-color:var(--biru-muda);}
+  .kartu.merah{border-left-color:var(--merah);}
+  .kartu.kuning{border-left-color:var(--kuning);background:#fffde7;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;}
+  .kartu-materi{
+    background:linear-gradient(145deg,#ffffff,#f3e5f5);
+    border-radius:var(--radius);padding:18px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.08);border:2px solid transparent;transition:.25s;
+  }
+  .kartu-materi:hover{border-color:var(--ungu-muda);transform:translateY(-5px);box-shadow:0 10px 24px rgba(106,27,154,.2);}
+  .kartu-materi .ikon{font-size:2.2rem;display:block;margin-bottom:8px;}
+  .kartu-materi h4{color:var(--ungu);font-size:1.02rem;}
+  .kartu-materi small{color:#607d8b;}
+  .peta{display:flex;flex-direction:column;align-items:center;gap:8px;background:#f3e5f5;border-radius:var(--radius);padding:18px;border:2px dashed var(--ungu-muda);}
+  .peta .node{background:var(--ungu);color:#fff;padding:8px 18px;border-radius:30px;font-weight:700;font-size:.9rem;}
+  .peta .node.b2{background:var(--biru);}
+  .peta .node.b3{background:var(--merah);}
+  .peta .arrow{color:var(--ungu);font-size:1.2rem;}
+  table.tabel{width:100%;border-collapse:collapse;margin:12px 0;font-size:.92rem;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.06);}
+  table.tabel th{background:var(--ungu);color:#fff;padding:10px 12px;text-align:left;}
+  table.tabel td{padding:9px 12px;border-bottom:1px solid #e0e0e0;vertical-align:top;}
+  table.tabel tr:nth-child(even) td{background:#f3e5f5;}
+  .infografik{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0;}
+  .info-item{background:#f3e5f5;border-radius:14px;padding:12px;text-align:center;border:2px solid #ce93d8;}
+  .info-item .angka{font-size:1.4rem;font-weight:900;color:var(--ungu);display:block;}
+  .info-item small{color:#4e342e;font-size:.8rem;}
+  .catatan{background:#fff8e1;border-left:5px solid var(--kuning);padding:12px 16px;border-radius:12px;margin:12px 0;font-size:.92rem;}
+  .dd-area{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .dd-col h4{text-align:center;margin-bottom:10px;}
+  .dd-drop{min-height:170px;background:#f3e5f5;border:3px dashed var(--ungu-muda);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:8px;}
+  .dd-drop.biru{background:#e3f2fd;border-color:var(--biru-muda);}
+  .dd-item{background:#fff;border:2px solid #ce93d8;border-radius:12px;padding:9px 12px;font-size:.9rem;font-weight:600;cursor:grab;display:flex;align-items:center;gap:8px;box-shadow:0 2px 6px rgba(0,0,0,.06);transition:.15s;}
+  .dd-item:active{cursor:grabbing;}
+  .dd-item.dragging{opacity:.4;}
+  .dd-item.benar{border-color:var(--hijau);background:#e8f5e9;}
+  .dd-item.salah{border-color:var(--merah);background:#ffebee;}
+  .dd-pool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  @media(max-width:600px){.dd-area{grid-template-columns:1fr;}}
+  .soal{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 14px rgba(0,0,0,.07);}
+  .soal .pertanyaan{font-weight:700;margin-bottom:12px;}
+  .opsi{display:block;padding:11px 14px;margin-bottom:8px;border-radius:12px;border:2px solid #e0e0e0;cursor:pointer;transition:.18s;font-size:.95rem;}
+  .opsi:hover{border-color:var(--biru-muda);background:#f1f8ff;}
+  .opsi.benar{border-color:var(--hijau);background:#e8f5e9;}
+  .opsi.salah{border-color:var(--merah);background:#ffebee;}
+  .opsi.terpilih{border-color:var(--biru);background:#e3f2fd;}
+  .feedback{margin-top:10px;padding:10px 14px;border-radius:12px;font-size:.9rem;display:none;}
+  .feedback.benar{display:block;background:#e8f5e9;color:#1b5e20;border-left:4px solid var(--hijau);}
+  .feedback.salah{display:block;background:#ffebee;color:#b71c1c;border-left:4px solid var(--merah);}
+  .benar-salah{display:flex;gap:10px;margin-top:8px;}
+  .benar-salah button{flex:1;padding:10px;border-radius:12px;border:2px solid #e0e0e0;background:#fff;cursor:pointer;font-weight:700;font-size:.95rem;}
+  .benar-salah button.aktif{border-color:var(--biru);background:#e3f2fd;}
+  .checklist{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+  .checklist label{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:12px;border:2px solid #e0e0e0;cursor:pointer;font-size:.93rem;}
+  .checklist label.aktif{border-color:var(--biru);background:#e3f2fd;}
+  .checklist input{margin-top:4px;width:18px;height:18px;accent-color:var(--ungu);}
+  .nav-bawah{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px;}
+  .hasil-card{text-align:center;padding:36px 22px;border-radius:var(--radius);background:linear-gradient(145deg,#ffffff,#f3e5f5);box-shadow:var(--bayangan);}
+  .skor-besar{font-size:4rem;font-weight:900;color:var(--ungu);line-height:1;}
+  .predikat{display:inline-block;padding:8px 26px;border-radius:30px;font-weight:800;color:#fff;margin:12px 0;font-size:1.1rem;}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:20px 0;}
+  .stat{background:#fff;border-radius:14px;padding:14px;box-shadow:0 3px 10px rgba(0,0,0,.07);}
+  .stat b{display:block;font-size:1.5rem;color:var(--biru);}
+  .rekomendasi{text-align:left;background:#fff8e1;border-left:5px solid var(--kuning);padding:16px;border-radius:14px;margin-top:16px;font-size:.95rem;}
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120%);background:var(--gelap);color:#fff;padding:12px 24px;border-radius:30px;font-weight:700;font-size:.9rem;z-index:200;transition:transform .4s;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90vw;text-align:center;}
+  #toast.show{transform:translateX(-50%) translateY(0);}
+  .konfeti{position:fixed;font-size:1.4rem;pointer-events:none;z-index:150;animation:jatuh 2.4s linear forwards;}
+  @keyframes jatuh{to{transform:translateY(100vh) rotate(540deg);opacity:0;}}
+  .btn-suara{position:fixed;bottom:18px;left:18px;z-index:95;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;background:#fff;color:var(--gelap);font-size:1.2rem;box-shadow:0 4px 14px rgba(0,0,0,.2);}
+  @media(max-width:520px){
+    .hero h1{font-size:1.6rem;}
+    header{padding:8px 10px;gap:8px;}
+    .logo{font-size:.95rem;}
+    .logo span{font-size:1.2rem;}
+    .poin-box{font-size:.78rem;padding:5px 10px;}
+    .badge-box{font-size:1rem;}
+    h2{font-size:1.25rem;}
+    .app{padding:16px 12px 90px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>🦠</span>Virus Interaktif</div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">Progress: 0%</div>
+  </div>
+  <div class="poin-box">⭐ <span id="poin">0</span> Poin</div>
+  <div class="badge-box" id="badgeBox"></div>
+</header>
+
+<button class="btn-suara" id="btnSuara" title="Suara aktif" onclick="toggleSuara()">🔊</button>
+
+<div class="app">
+
+  <section class="screen active" id="screen-pembuka">
+    <div class="hero">
+      <div class="ilustrasi">🦠🧬🔬</div>
+      <h1>Virus</h1>
+      <p>Selamat datang di petualangan dunia mikro! Pelajari apa itu virus, struktur tubuhnya, cara replikasi, peranannya bagi kehidupan, serta penyakit dan cara pencegahannya melalui materi visual, aktivitas interaktif, dan kuis HOTS yang seru.</p>
+      <button class="btn" onclick="mulaiBelajar()">🚀 Mulai Belajar</button>
+    </div>
+    <div class="grid" style="margin-top:20px;">
+      <div class="kartu">
+        <h3>🎯 Apa yang akan kamu pelajari?</h3>
+        <p>Sejarah penemuan virus, ciri-ciri, struktur tubuh, bentuk virus, cara replikasi (litik & lisogenik), peranan menguntungkan & merugikan, penyakit akibat virus, serta pencegahan dan pengobatannya.</p>
+      </div>
+      <div class="kartu biru">
+        <h3>🏆 Tantangan & Badge</h3>
+        <p>Kumpulkan poin, raih badge pencapaian, dan selesaikan kuis akhir HOTS untuk mendapatkan predikat!</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-tujuan">
+    <h2>🎯 Tujuan Pembelajaran</h2>
+    <div class="kartu">
+      <p>Setelah mempelajari media ini, siswa diharapkan mampu:</p>
+      <ol style="margin-left:20px;">
+        <li>Menjelaskan sejarah penemuan virus dan tokoh-tokohnya.</li>
+        <li>Mendeskripsikan ciri-ciri virus sebagai makhluk peralihan hidup dan tak hidup.</li>
+        <li>Mengidentifikasi struktur tubuh virus (kapsid, asam nukleat, selubung, dll.).</li>
+        <li>Membedakan bentuk-bentuk virus (heliks, ikosahedral, kompleks, dll.).</li>
+        <li>Menganalisis cara replikasi virus: siklus litik dan lisogenik.</li>
+        <li>Mengevaluasi peranan virus yang menguntungkan dan merugikan.</li>
+        <li>Mengidentifikasi penyakit akibat virus serta upaya pencegahan dan pengobatannya.</li>
+        <li>Mengevaluasi kasus-kasus virus dan mengambil keputusan berbasis data (HOTS).</li>
+      </ol>
+    </div>
+    <h2>🗺️ Peta Konsep</h2>
+    <div class="peta">
+      <div class="node">VIRUS</div>
+      <div class="arrow">⬇</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <div class="node b2">Ciri & Struktur</div>
+        <div class="node b2">Bentuk Virus</div>
+      </div>
+      <div class="arrow">⬇</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <div class="node b3">Replikasi</div>
+        <div class="node b3">Peranan</div>
+        <div class="node b3">Penyakit</div>
+      </div>
+      <div class="arrow">⬇</div>
+      <div class="node">Pencegahan & Pengobatan</div>
+    </div>
+    <div class="nav-bawah">
+      <button class="btn btn-abu btn-kecil" onclick="showScreen('pembuka')">⬅ Kembali</button>
+      <button class="btn btn-kecil" onclick="showScreen('menu')">Lanjut ke Materi ➡</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-menu">
+    <h2>📚 Menu Materi</h2>
+    <p>Pilih materi yang ingin kamu pelajari. Setiap materi memiliki latihan soal interaktif dengan soal HOTS!</p>
+    <div class="grid" id="menuGrid"></div>
+    <div class="nav-bawah">
+      <button class="btn btn-abu btn-kecil" onclick="showScreen('tujuan')">⬅ Peta Konsep</button>
+      <button class="btn btn-biru btn-kecil" onclick="showScreen('kuis')">🏁 Kuis Akhir</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-materi">
+    <h2 id="materiJudul"></h2>
+    <div id="materiKonten"></div>
+    <div id="aktivitasBox"></div>
+    <div id="latihanBox"></div>
+    <div class="nav-bawah">
+      <button class="btn btn-abu btn-kecil" onclick="showScreen('menu')">⬅ Menu Materi</button>
+      <button class="btn btn-kecil" onclick="materiBerikutnya()">Materi Berikutnya ➡</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-kuis">
+    <h2>🏁 Kuis Akhir Virus (HOTS)</h2>
+    <p>15 soal: pilihan ganda (A–E), benar-salah, dan pilihan ganda kompleks. Soal menekankan pemahaman konsep, penerapan, analisis, evaluasi, dan HOTS. Jawab dengan teliti!</p>
+    <div id="kuisKonten"></div>
+    <div class="nav-bawah">
+      <button class="btn btn-biru" onclick="selesaikanKuis()">✅ Selesaikan Kuis</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-hasil">
+    <div class="hasil-card" id="hasilKonten"></div>
+    <div class="nav-bawah">
+      <button class="btn btn-abu btn-kecil" onclick="showScreen('menu')">📚 Menu Materi</button>
+      <button class="btn btn-kecil" onclick="ulangiKuis()">🔄 Ulangi Kuis</button>
+    </div>
+  </section>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   SUARA (Web Audio API)
+============================================================ */
+let audioCtx = null, suaraAktif = true;
+function getAudioCtx(){
+  if(!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(AC) audioCtx = new AC();
+  }
+  if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+function toggleSuara(){
+  suaraAktif = !suaraAktif;
+  const btn = document.getElementById("btnSuara");
+  btn.textContent = suaraAktif ? "🔊" : "🔇";
+  btn.title = suaraAktif ? "Suara aktif" : "Suara mati";
+  if(suaraAktif) bunyiBenar();
+}
+function nada(freq, mulai, durasi, tipe, volume){
+  const ctx = getAudioCtx(); if(!ctx) return;
+  const osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = tipe || "sine"; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, ctx.currentTime + mulai);
+  gain.gain.linearRampToValueAtTime(volume ?? 0.15, ctx.currentTime + mulai + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + mulai + durasi);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(ctx.currentTime + mulai);
+  osc.stop(ctx.currentTime + mulai + durasi + 0.05);
+}
+function bunyiSalah(){ if(!suaraAktif) return; nada(220,0,0.18,"sawtooth",0.18); nada(165,0.16,0.28,"sawtooth",0.18); }
+function bunyiBenar(){ if(!suaraAktif) return; nada(660,0,0.12,"sine",0.16); nada(990,0.1,0.18,"sine",0.16); }
+function bunyiSelesai(){ if(!suaraAktif) return; [523,659,784,1047].forEach((f,i)=>nada(f,i*0.12,0.2,"triangle",0.14)); }
+
+/* ============================================================
+   DATA MATERI VIRUS (8 SUBMATERI)
+============================================================ */
+const materiData = [
+  {
+    id:0, ikon:"📜", judul:"Sejarah Penemuan Virus",
+    konten:`
+      <div class="kartu">
+        <p>Virus pertama kali ditemukan pada akhir abad ke-19. Kata <b>virus</b> berasal dari bahasa Latin yang berarti <i>racun</i>.</p>
+        <table class="tabel">
+          <tr><th>Tokoh</th><th>Tahun</th><th>Penemuan</th></tr>
+          <tr><td>Adolf Mayer</td><td>1883</td><td>Meneliti penyakit mosaik pada daun tembakau</td></tr>
+          <tr><td>Dmitri Ivanovsky</td><td>1892</td><td>Menemukan agen penyebab mosaik tembakau yang lolos filter bakteri</td></tr>
+          <tr><td>Martinus Beijerinck</td><td>1898</td><td>Menyebut agen tersebut <i>contagium vivum fluidum</i> (cairan hidup menular)</td></tr>
+          <tr><td>Wendell Stanley</td><td>1935</td><td>Berhasil mengkristalkan virus mosaik tembakau (TMV)</td></tr>
+        </table>
+      </div>
+      <div class="kartu biru">
+        <h3>💡 Tahukah Kamu?</h3>
+        <p>Virus mosaik tembakau (TMV) adalah virus pertama yang berhasil dikristalkan. Kristal virus tersebut tetap dapat menular ketika diinfeksikan ke tanaman tembakau sehat.</p>
+      </div>`,
+    latihan:[
+      {tipe:"pg", soal:"Ilmuwan yang pertama kali mengkristalkan virus mosaik tembakau adalah...",
+       opsi:["Adolf Mayer","Dmitri Ivanovsky","Martinus Beijerinck","Wendell Stanley","Louis Pasteur"], jawab:3,
+       bahas:"Wendell Stanley (1935) mengkristalkan TMV."},
+      {tipe:"pg", soal:"Virus mosaik tembakau pertama kali diteliti oleh...",
+       opsi:["Adolf Mayer","Robert Hooke","Antonie van Leeuwenhoek","Alexander Fleming","Edward Jenner"], jawab:0,
+       bahas:"Adolf Mayer (1883) meneliti penyakit mosaik pada daun tembakau."},
+      {tipe:"pg", soal:"[HOTS] Mengapa Ivanovsky menyimpulkan bahwa agen penyebab mosaik tembakau berbeda dari bakteri?",
+       opsi:["Karena agen tersebut dapat dilihat dengan mata telanjang","Karena agen tersebut lolos melewati filter yang menahan bakteri","Karena agen tersebut membentuk koloni di media agar","Karena agen tersebut dapat dibunuh antibiotik","Karena agen tersebut berukuran lebih besar dari bakteri"], jawab:1,
+       bahas:"Filter bakteri menahan bakteri, tetapi agen mosaik tetap lolos → ukurannya lebih kecil dari bakteri."}
+    ]
+  },
+  {
+    id:1, ikon:"🧬", judul:"Ciri-ciri Virus",
+    konten:`
+      <div class="kartu">
+        <p>Virus adalah makhluk <b>peralihan</b> antara benda hidup dan tak hidup. Berikut ciri-cirinya:</p>
+        <h3>Ciri sebagai benda tak hidup</h3>
+        <ul style="margin-left:20px;">
+          <li>Tidak memiliki sitoplasma dan organel sel.</li>
+          <li>Tidak dapat melakukan metabolisme sendiri.</li>
+          <li>Dapat dikristalkan (seperti benda mati).</li>
+        </ul>
+        <h3>Ciri sebagai makhluk hidup</h3>
+        <ul style="margin-left:20px;">
+          <li>Memiliki asam nukleat (DNA atau RNA).</li>
+          <li>Dapat bereplikasi di dalam sel hidup (sel inang).</li>
+          <li>Dapat bermutasi.</li>
+          <li>Dapat menular dari satu inang ke inang lain.</li>
+        </ul>
+      </div>
+      <div class="kartu kuning">
+        <h3>📌 Ukuran Virus</h3>
+        <p>Virus sangat kecil, berukuran <b>20–300 nanometer (nm)</b>, jauh lebih kecil dari bakteri. Virus hanya dapat dilihat dengan <b>mikroskop elektron</b>.</p>
+      </div>`,
+    latihan:[
+      {tipe:"pg", soal:"Virus disebut sebagai makhluk peralihan karena...",
+       opsi:["Hanya dapat hidup di air","Memiliki ciri benda hidup dan benda tak hidup","Tidak memiliki asam nukleat","Dapat dilihat dengan mata telanjang","Tidak dapat bereplikasi"], jawab:1,
+       bahas:"Virus memiliki ciri hidup (bereproduksi) dan tak hidup (dapat dikristalkan)."},
+      {tipe:"pg", soal:"Alat yang digunakan untuk melihat virus adalah...",
+       opsi:["Lup","Mikroskop cahaya","Mikroskop elektron","Teleskop","Kaca pembesar"], jawab:2,
+       bahas:"Virus berukuran nanometer, hanya terlihat dengan mikroskop elektron."},
+      {tipe:"pg", soal:"[HOTS] Seorang ilmuwan mengkristalkan virus lalu menyimpannya bertahun-tahun. Ketika kristal tersebut dilarutkan dan diinfeksikan ke sel hidup, virus kembali aktif. Kesimpulan yang paling tepat adalah...",
+       opsi:["Virus adalah benda mati sejati","Virus dapat kembali aktif jika berada di sel hidup","Virus tidak memiliki asam nukleat","Kristal virus bukan virus","Virus hanya aktif di luar sel"], jawab:1,
+       bahas:"Virus dapat dikristalkan (ciri tak hidup), tetapi aktif kembali saat berada di sel hidup (ciri hidup)."}
+    ]
+  },
+  {
+    id:2, ikon:"🔬", judul:"Struktur Tubuh Virus",
+    konten:`
+      <div class="kartu">
+        <p>Struktur tubuh virus secara umum:</p>
+        <table class="tabel">
+          <tr><th>Bagian</th><th>Fungsi</th></tr>
+          <tr><td><b>Asam nukleat</b></td><td>Materi genetik (DNA atau RNA) yang membawa informasi untuk bereplikasi</td></tr>
+          <tr><td><b>Kapsid</b></td><td>Selubung protein yang melindungi asam nukleat</td></tr>
+          <tr><td><b>Kapsomer</b></td><td>Subunit protein penyusun kapsid</td></tr>
+          <tr><td><b>Selubung (envelope)</b></td><td>Lapisan tambahan dari membran sel inang + protein virus (pada virus tertentu, mis. HIV)</td></tr>
+          <tr><td><b>Ekor & serabut ekor</b></td><td>Alat penempel pada sel inang (pada bakteriofag)</td></tr>
+        </table>
+        <div class="infografik">
+          <div class="info-item"><span class="angka">DNA/RNA</span><small>Materi genetik</small></div>
+          <div class="info-item"><span class="angka">Kapsid</span><small>Pelindung protein</small></div>
+          <div class="info-item"><span class="angka">20–300 nm</span><small>Ukuran virus</small></div>
+        </div>
+      </div>`,
+    aktivitas:"ddStruktur",
+    latihan:[
+      {tipe:"pg", soal:"Selubung protein yang melindungi asam nukleat virus disebut...",
+       opsi:["Kapsid","Kapsomer","Nukleoid","Enzim","Membran"], jawab:0,
+       bahas:"Kapsid = selubung protein virus; kapsomer = subunitnya."},
+      {tipe:"pg", soal:"Bagian virus yang berfungsi sebagai materi genetik adalah...",
+       opsi:["Kapsid","Asam nukleat","Ekor","Serabut ekor","Selubung"], jawab:1,
+       bahas:"Asam nukleat (DNA atau RNA) membawa informasi genetik virus."},
+      {tipe:"pg", soal:"[HOTS] Virus yang tidak memiliki selubung (envelope) lebih tahan terhadap lingkungan luar, sedangkan virus berselubung lebih mudah rusak oleh sabun. Penjelasan yang paling tepat adalah...",
+       opsi:["Selubung tersusun dari lipid yang dapat dirusak sabun","Kapsid tidak mengandung protein","Virus tanpa selubung tidak memiliki asam nukleat","Virus berselubung tidak dapat menginfeksi sel","Sabun hanya membunuh bakteri"], jawab:0,
+       bahas:"Selubung virus tersusun dari lipid + protein; sabun dapat merusak membran lipid sehingga virus berselubung mudah inaktif."}
+    ]
+  },
+  {
+    id:3, ikon:"🔺", judul:"Bentuk-bentuk Virus",
+    konten:`
+      <div class="kartu">
+        <p>Virus memiliki berbagai bentuk berdasarkan struktur kapsidnya:</p>
+        <table class="tabel">
+          <tr><th>Bentuk</th><th>Ciri</th><th>Contoh</th></tr>
+          <tr><td><b>Heliks (batang)</b></td><td>Kapsid berbentuk tabung memanjang</td><td>TMV (mosaik tembakau), virus influenza</td></tr>
+          <tr><td><b>Ikosahedral (polihedral)</b></td><td>Kapsid berbentuk 20 sisi segitiga</td><td>Adenovirus, virus polio</td></tr>
+          <tr><td><b>Kompleks</b></td><td>Kapsid + ekor + serabut ekor</td><td>Bakteriofag (T4)</td></tr>
+          <tr><td><b>Spiral</b></td><td>Kapsid berbentuk spiral</td><td>Virus rabies</td></tr>
+          <tr><td><b>Bulat (sferis)</b></td><td>Kapsid tampak bulat dengan selubung</td><td>HIV, virus corona</td></tr>
+        </table>
+      </div>
+      <div class="catatan">
+        <b>💡 Ingat:</b> Bakteriofag adalah virus yang menyerang bakteri. Bentuknya kompleks, terdiri atas kepala (kapsid berisi DNA), ekor, dan serabut ekor.
+      </div>`,
+    latihan:[
+      {tipe:"pg", soal:"Virus yang menyerang bakteri disebut...",
+       opsi:["Bakteriofag","Adenovirus","Retrovirus","Bakterisida","Virofag"], jawab:0,
+       bahas:"Bakteriofag = virus pemakan/menyerang bakteri."},
+      {tipe:"pg", soal:"Bentuk virus TMV (mosaik tembakau) adalah...",
+       opsi:["Ikosahedral","Heliks (batang)","Kompleks","Bulat","Spiral"], jawab:1,
+       bahas:"TMV berbentuk batang/heliks."},
+      {tipe:"pg", soal:"[HOTS] Bakteriofag memiliki bentuk kompleks karena...",
+       opsi:["Hanya memiliki asam nukleat","Terdiri atas kepala (kapsid), ekor, dan serabut ekor untuk menempel pada bakteri","Tidak memiliki kapsid","Berbentuk bulat sempurna","Tidak dapat menginfeksi sel"], jawab:1,
+       bahas:"Struktur kompleks bakteriofag: kepala berisi DNA + ekor + serabut ekor untuk menempel pada sel bakteri."}
+    ]
+  },
+  {
+    id:4, ikon:"🔄", judul:"Replikasi Virus",
+    konten:`
+      <div class="kartu">
+        <p>Virus hanya dapat bereplikasi di dalam <b>sel inang</b>. Ada dua siklus replikasi:</p>
+        <h3>Siklus Litik</h3>
+        <ol style="margin-left:20px;">
+          <li><b>Adsorpsi</b>: virus menempel pada reseptor sel inang.</li>
+          <li><b>Penetrasi</b>: virus memasukkan asam nukleat ke dalam sel.</li>
+          <li><b>Replikasi & sintesis</b>: asam nukleat virus mengarahkan sel inang membuat komponen virus baru.</li>
+          <li><b>Perakitan</b>: komponen virus dirakit menjadi virus baru.</li>
+          <li><b>Lisis</b>: sel inang pecah dan virus baru keluar.</li>
+        </ol>
+        <h3>Siklus Lisogenik</h3>
+        <p>Asam nukleat virus menyisip ke DNA sel inang (menjadi <b>profag</b>) dan ikut bereplikasi bersama sel inang tanpa menghancurkannya. Pada kondisi tertentu, profag dapat aktif dan masuk ke siklus litik.</p>
+      </div>
+      <div class="kartu biru">
+        <h3>🧫 Contoh</h3>
+        <p>Bakteriofag T4 melakukan siklus litik pada <i>E. coli</i>. Virus HIV dapat menyisip ke DNA sel limfosit T (siklus lisogenik) dan aktif kembali setelah beberapa waktu.</p>
+      </div>`,
+    aktivitas:"ddSiklus",
+    latihan:[
+      {tipe:"pg", soal:"Tahap akhir siklus litik ketika sel inang pecah dan virus baru keluar disebut...",
+       opsi:["Adsorpsi","Penetrasi","Replikasi","Perakitan","Lisis"], jawab:4,
+       bahas:"Lisis = pecahnya sel inang, melepaskan virus baru."},
+      {tipe:"pg", soal:"Pada siklus lisogenik, DNA virus yang menyisip ke DNA sel inang disebut...",
+       opsi:["Kapsid","Profag","Kapsomer","Nukleoid","Plasmid"], jawab:1,
+       bahas:"Profag = DNA virus yang menyisip ke DNA inang."},
+      {tipe:"pg", soal:"[HOTS] Virus HIV dapat tetap 'tersembunyi' bertahun-tahun di dalam tubuh tanpa gejala. Mekanisme yang paling tepat menjelaskan hal ini adalah...",
+       opsi:["HIV selalu langsung menghancurkan sel inang","HIV melakukan siklus lisogenik: DNA-nya menyisip ke DNA sel inang dan ikut bereplikasi tanpa merusak sel","HIV tidak memiliki asam nukleat","HIV hanya menyerang bakteri","HIV tidak dapat menginfeksi sel manusia"], jawab:1,
+       bahas:"Siklus lisogenik memungkinkan virus 'dormant' di dalam DNA inang, sehingga tidak langsung menimbulkan gejala."}
+    ]
+  },
+  {
+    id:5, ikon:"🌱", judul:"Peranan Virus",
+    konten:`
+      <div class="kartu merah">
+        <h3>⚠️ Virus yang Merugikan</h3>
+        <table class="tabel">
+          <tr><th>Penyakit</th><th>Virus</th><th>Inang</th></tr>
+          <tr><td>Mosaik tembakau</td><td>TMV</td><td>Tumbuhan tembakau</td></tr>
+          <tr><td>Flu burung</td><td>H5N1</td><td>Unggas, manusia</td></tr>
+          <tr><td>COVID-19</td><td>SARS-CoV-2</td><td>Manusia</td></tr>
+          <tr><td>Campak</td><td>Morbillivirus</td><td>Manusia</td></tr>
+          <tr><td>Rabies</td><td>Lyssavirus</td><td>Hewan & manusia</td></tr>
+          <tr><td>Demam berdarah</td><td>Dengue</td><td>Manusia (nyamuk Aedes)</td></tr>
+        </table>
+      </div>
+      <div class="kartu">
+        <h3>✅ Virus yang Menguntungkan</h3>
+        <ul style="margin-left:20px;">
+          <li><b>Bakteriofag</b> dimanfaatkan untuk membunuh bakteri patogen (terapi fag).</li>
+          <li><b>Vektor gen</b> dalam rekayasa genetika (terapi gen).</li>
+          <li><b>Vaksin</b> dibuat dari virus yang dilemahkan/dimatikan.</li>
+          <li><b>Biokontrol</b> hama serangga (mis. virus NPV).</li>
+          <li>Digunakan dalam penelitian biologi molekuler.</li>
+        </ul>
+      </div>`,
+    latihan:[
+      {tipe:"pg", soal:"Virus yang dimanfaatkan untuk membunuh bakteri patogen adalah...",
+       opsi:["Bakteriofag","Adenovirus","Retrovirus","Virus rabies","Virus influenza"], jawab:0,
+       bahas:"Bakteriofag menyerang bakteri → terapi fag."},
+      {tipe:"pg", soal:"Penyakit demam berdarah disebabkan oleh virus...",
+       opsi:["Dengue","HIV","TMV","H5N1","Lyssavirus"], jawab:0,
+       bahas:"Virus Dengue ditularkan melalui nyamuk Aedes aegypti."},
+      {tipe:"pg", soal:"[HOTS] Pemerintah menganjurkan vaksinasi COVID-19 secara massal. Alasan ilmiah yang paling tepat adalah...",
+       opsi:["Vaksin langsung membunuh semua virus di tubuh","Vaksin melatih sistem imun mengenali virus sehingga respons imun lebih cepat dan kuat saat infeksi","Vaksin mengandung virus aktif yang berbahaya","Vaksin menggantikan sistem imun tubuh","Vaksin hanya untuk orang sakit"], jawab:1,
+       bahas:"Vaksin memicu imunitas adaptif (antibodi & sel memori) sehingga tubuh lebih siap melawan virus."}
+    ]
+  },
+  {
+    id:6, ikon:"💉", judul:"Penyakit & Pencegahan",
+    konten:`
+      <div class="kartu">
+        <h3>Penyakit Akibat Virus pada Manusia</h3>
+        <p>Contoh: influenza, COVID-19, campak, gondong, polio, hepatitis (A–E), rabies, demam berdarah, HIV/AIDS, herpes, cacar air, dan ebola.</p>
+        <h3>Pencegahan</h3>
+        <ul style="margin-left:20px;">
+          <li>Vaksinasi.</li>
+          <li>Mencuci tangan dengan sabun.</li>
+          <li>Memakai masker saat sakit.</li>
+          <li>Menjaga jarak & menghindari kerumunan.</li>
+          <li>Mengonsumsi makanan bergizi dan berolahraga.</li>
+          <li>Memberantas vektor (nyamuk) dengan 3M Plus.</li>
+        </ul>
+        <h3>Pengobatan</h3>
+        <p>Antibiotik <b>tidak efektif</b> untuk virus. Pengobatan virus menggunakan <b>antiviral</b> (mis. oseltamivir untuk influenza), dan sebagian besar ditangani dengan terapi suportif untuk memperkuat imun tubuh.</p>
+      </div>
+      <div class="catatan">
+        <b>⚠️ Miskonsepsi umum:</b> Antibiotik hanya membunuh bakteri, bukan virus. Penggunaan antibiotik sembarangan untuk flu justru memicu resistensi bakteri.
+      </div>`,
+    latihan:[
+      {tipe:"pg", soal:"Obat yang TIDAK efektif untuk membunuh virus adalah...",
+       opsi:["Antiviral","Antibiotik","Vaksin","Interferon","Imunomodulator"], jawab:1,
+       bahas:"Antibiotik hanya membunuh bakteri, tidak efektif untuk virus."},
+      {tipe:"pg", soal:"Program 3M Plus bertujuan untuk mencegah penyakit...",
+       opsi:["Influenza","COVID-19","Demam berdarah","Rabies","Hepatitis"], jawab:2,
+       bahas:"3M Plus (menguras, menutup, mendaur ulang + plus) memberantas nyamuk Aedes aegypti penyebab DBD."},
+      {tipe:"pg", soal:"[HOTS] Seseorang yang terinfeksi virus influenza diberi antibiotik oleh temannya. Apa yang paling mungkin terjadi?",
+       opsi:["Virus influenza langsung mati","Antibiotik tidak efektif karena virus bukan bakteri, bahkan dapat memicu resistensi bakteri","Virus berubah menjadi bakteri","Antibiotik mempercepat penyembuhan","Antibiotik membunuh sel imun"], jawab:1,
+       bahas:"Antibiotik tidak membunuh virus. Penggunaan sembarangan dapat memicu resistensi bakteri."}
+    ]
+  },
+  {
+    id:7, ikon:"🌍", judul:"Virus & Kehidupan",
+    konten:`
+      <div class="kartu">
+        <p>Virus memiliki peran ganda: merugikan, tetapi juga bermanfaat bagi kehidupan dan perkembangan ilmu pengetahuan.</p>
+        <h3>Manfaat virus di berbagai bidang</h3>
+        <ul style="margin-left:20px;">
+          <li><b>Kedokteran</b>: vaksin, terapi gen, terapi fag.</li>
+          <li><b>Bioteknologi</b>: vektor rekayasa genetika, produksi protein rekombinan (mis. insulin).</li>
+          <li><b>Pertanian</b>: biokontrol hama serangga.</li>
+          <li><b>Penelitian</b>: model biologi molekuler.</li>
+        </ul>
+      </div>
+      <div class="kartu biru">
+        <h3>🔬 Tantangan Global</h3>
+        <p>Pandemi COVID-19 menunjukkan pentingnya riset virus, vaksinasi, dan kerja sama global. Pemahaman tentang virus membantu manusia merespons wabah dengan cepat.</p>
+      </div>
+      <div class="catatan">
+        <b>💡 Kesimpulan:</b> Virus bukan sekadar "musuh", tetapi juga alat penting dalam bioteknologi dan kedokteran modern. Pemahaman ilmiah yang benar membantu kita memanfaatkan virus secara aman.
+      </div>`,
+    latihan:[
+      {tipe:"pg", soal:"Virus dapat dimanfaatkan dalam bidang kedokteran untuk...",
+       opsi:["Membuat vaksin dan terapi gen","Membunuh semua bakteri baik","Menggantikan antibiotik","Menghasilkan racun","Menghentikan fotosintesis"], jawab:0,
+       bahas:"Virus dilemahkan/dimatikan digunakan untuk vaksin, dan sebagai vektor terapi gen."},
+      {tipe:"pg", soal:"Contoh virus yang dimanfaatkan sebagai biokontrol hama adalah...",
+       opsi:["NPV (Nucleopolyhedrovirus)","HIV","SARS-CoV-2","TMV","Rabies"], jawab:0,
+       bahas:"NPV menginfeksi serangga hama sehingga digunakan sebagai biopestisida."},
+      {tipe:"pg", soal:"[HOTS] Seorang peneliti ingin membuat insulin manusia menggunakan bakteri E. coli. Peran virus dalam proses tersebut adalah...",
+       opsi:["Virus sebagai sumber insulin","Virus sebagai vektor untuk memasukkan gen insulin ke bakteri","Virus membunuh bakteri E. coli","Virus menggantikan DNA manusia","Virus menghambat pertumbuhan bakteri"], jawab:1,
+       bahas:"Virus (bakteriofag) dapat dimodifikasi sebagai vektor untuk memasukkan gen insulin ke bakteri."}
+    ]
+  }
+];
+
+/* ============================================================
+   STATE
+============================================================ */
+let poin = 0;
+let progressMateri = new Set();
+let materiAktif = 0;
+let badges = new Set();
+let kuisSudahSelesai = false;
+let jawabanLatihan = {};
+
+/* ============================================================
+   NAVIGASI
+============================================================ */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  const target = document.getElementById("screen-"+id);
+  if(target) target.classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(id==="menu") renderMenu();
+  if(id==="kuis") renderKuis();
+}
+function mulaiBelajar(){ showScreen("tujuan"); }
+
+/* ============================================================
+   PROGRESS & POIN
+============================================================ */
+function updateProgress(){
+  const total = materiData.length + 1;
+  const done = progressMateri.size + (kuisSudahSelesai?1:0);
+  const persen = Math.round(done/total*100);
+  document.getElementById("progressFill").style.width = persen+"%";
+  document.getElementById("progressLabel").textContent = `Progress: ${persen}%`;
+}
+function tambahPoin(n, alasan){
+  poin += n;
+  document.getElementById("poin").textContent = poin;
+  if(alasan) toast(`+${n} poin! ${alasan}`);
+  cekBadge();
+}
+function cekBadge(){
+  const box = document.getElementById("badgeBox");
+  if(poin>=50 && !badges.has("pemula")){ badges.add("pemula"); setTimeout(()=>toast("🏅 Badge baru: Pemula Virologi!"),600); }
+  if(poin>=150 && !badges.has("penjelajah")){ badges.add("penjelajah"); setTimeout(()=>toast("🏅 Badge baru: Penjelajah Virus!"),600); }
+  if(kuisSudahSelesai && poin>=250 && !badges.has("master")){ badges.add("master"); setTimeout(()=>toast("🏅 Badge baru: Master Virologi!"),600); }
+  box.textContent = [...badges].map(b=>b==="pemula"?"🥉":b==="penjelajah"?"🥈":"🥇").join(" ");
+}
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove("show"),2800);
+}
+function konfeti(){
+  for(let i=0;i<24;i++){
+    const el = document.createElement("div");
+    el.className = "konfeti";
+    el.textContent = ["🎉","⭐","🌟","✨","🏅"][Math.floor(Math.random()*5)];
+    el.style.left = Math.random()*100+"vw";
+    el.style.top = "-40px";
+    el.style.animationDelay = Math.random()*0.6+"s";
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),3200);
+  }
+}
+
+/* ============================================================
+   MENU
+============================================================ */
+function renderMenu(){
+  const grid = document.getElementById("menuGrid");
+  grid.innerHTML = materiData.map((m,i)=>`
+    <div class="kartu-materi" onclick="bukaMateri(${i})">
+      <span class="ikon">${m.ikon}</span>
+      <h4>${i+1}. ${m.judul}</h4>
+      <small>${progressMateri.has(i)?"✅ Sudah dipelajari":"Klik untuk belajar"}</small>
+    </div>`).join("");
+}
+
+/* ============================================================
+   MATERI
+============================================================ */
+function bukaMateri(i){
+  materiAktif = i;
+  showScreen("materi");
+  const m = materiData[i];
+  document.getElementById("materiJudul").textContent = `${m.ikon} ${m.judul}`;
+  document.getElementById("materiKonten").innerHTML = m.konten;
+  renderAktivitas(m);
+  renderLatihan(m);
+  if(!progressMateri.has(i)){
+    progressMateri.add(i);
+    tambahPoin(10, "Materi dipelajari");
+    updateProgress();
+  }
+}
+function materiBerikutnya(){
+  if(materiAktif < materiData.length-1) bukaMateri(materiAktif+1);
+  else { toast("🎉 Semua materi sudah dibuka! Saatnya kuis akhir."); showScreen("kuis"); }
+}
+
+/* ============================================================
+   AKTIVITAS DRAG & DROP
+============================================================ */
+function renderAktivitas(m){
+  const box = document.getElementById("aktivitasBox");
+  box.innerHTML = "";
+  if(!m.aktivitas) return;
+  if(m.aktivitas==="ddStruktur") box.innerHTML = ddStrukturHTML();
+  if(m.aktivitas==="ddSiklus") box.innerHTML = ddSiklusHTML();
+  initDD();
+}
+
+function ddStrukturHTML(){
+  const items = [
+    {t:"🧬 Asam nukleat",k:"materi"},
+    {t:"🛡️ Kapsid",k:"pelindung"},
+    {t:"🧩 Kapsomer",k:"pelindung"},
+    {t:"🧪 Enzim",k:"materi"},
+    {t:"🦠 Selubung",k:"pelindung"},
+    {t:"🔗 Serabut ekor",k:"penempel"}
+  ];
+  return `
+  <div class="kartu biru">
+    <h3>🧩 Aktivitas: Kelompokkan Bagian Virus</h3>
+    <p>Seret kartu ke kotak peran yang tepat, lalu klik Periksa.</p>
+    <div class="dd-pool" id="pool-struktur">
+      ${items.map(it=>`<div class="dd-item" draggable="true" data-kategori="${it.k}">${it.t}</div>`).join("")}
+    </div>
+    <div class="dd-area" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="dd-col"><h4>Materi genetik</h4><div class="dd-drop" data-jenis="materi" style="min-height:120px;"></div></div>
+      <div class="dd-col"><h4>Pelindung</h4><div class="dd-drop biru" data-jenis="pelindung" style="min-height:120px;"></div></div>
+      <div class="dd-col"><h4>Penempel</h4><div class="dd-drop" data-jenis="penempel" style="min-height:120px;"></div></div>
+    </div>
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-kecil" onclick="periksaDD('struktur')">Periksa Jawaban</button>
+    </div>
+    <div id="dd-feedback-struktur" style="margin-top:10px;"></div>
+  </div>`;
+}
+
+function ddSiklusHTML(){
+  const items = [
+    {t:"1️⃣ Adsorpsi",k:"1"},
+    {t:"2️⃣ Penetrasi",k:"2"},
+    {t:"3️⃣ Replikasi",k:"3"},
+    {t:"4️⃣ Perakitan",k:"4"},
+    {t:"5️⃣ Lisis",k:"5"}
+  ];
+  return `
+  <div class="kartu">
+    <h3>🧩 Aktivitas: Urutkan Siklus Litik</h3>
+    <p>Seret kartu ke kotak berurutan dari 1 hingga 5.</p>
+    <div class="dd-pool" id="pool-siklus">
+      ${items.map(it=>`<div class="dd-item" draggable="true" data-urutan="${it.k}">${it.t}</div>`).join("")}
+    </div>
+    <div class="dd-area" style="grid-template-columns:repeat(5,1fr);">
+      <div class="dd-col"><h4>1</h4><div class="dd-drop" data-jenis="1" style="min-height:80px;"></div></div>
+      <div class="dd-col"><h4>2</h4><div class="dd-drop" data-jenis="2" style="min-height:80px;"></div></div>
+      <div class="dd-col"><h4>3</h4><div class="dd-drop" data-jenis="3" style="min-height:80px;"></div></div>
+      <div class="dd-col"><h4>4</h4><div class="dd-drop" data-jenis="4" style="min-height:80px;"></div></div>
+      <div class="dd-col"><h4>5</h4><div class="dd-drop" data-jenis="5" style="min-height:80px;"></div></div>
+    </div>
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-kecil" onclick="periksaDD('siklus')">Periksa Jawaban</button>
+    </div>
+    <div id="dd-feedback-siklus" style="margin-top:10px;"></div>
+  </div>`;
+}
+
+/* ============================================================
+   DRAG & DROP LOGIC
+============================================================ */
+let dragged = null;
+function initDD(){
+  document.querySelectorAll(".dd-item").forEach(item=>{
+    item.addEventListener("dragstart", e=>{
+      dragged = item; item.classList.add("dragging");
+      e.dataTransfer.setData("text/plain","");
+    });
+    item.addEventListener("dragend", ()=> item.classList.remove("dragging"));
+    item.addEventListener("touchstart", ()=>{ dragged = item; item.classList.add("dragging"); }, {passive:true});
+    item.addEventListener("touchend", ()=> item.classList.remove("dragging"));
+  });
+  document.querySelectorAll(".dd-drop").forEach(drop=>{
+    drop.addEventListener("dragover", e=>{ e.preventDefault(); drop.style.background="#e1bee7"; });
+    drop.addEventListener("dragleave", ()=> drop.style.background="");
+    drop.addEventListener("drop", e=>{ e.preventDefault(); drop.style.background=""; if(dragged) drop.appendChild(dragged); });
+    drop.addEventListener("click", ()=>{ if(dragged) drop.appendChild(dragged); });
+  });
+}
+
+function periksaDD(jenis){
+  const container = document.querySelectorAll(".dd-drop");
+  let benar = 0, total = 0;
+  container.forEach(drop=>{
+    if(!drop.querySelector(".dd-item")) return;
+    drop.querySelectorAll(".dd-item").forEach(item=>{
+      total++;
+      const kategoriItem = item.dataset.kategori || item.dataset.urutan;
+      const kategoriDrop = drop.dataset.jenis;
+      if(kategoriItem === kategoriDrop){ item.classList.add("benar"); item.classList.remove("salah"); benar++; }
+      else { item.classList.add("salah"); item.classList.remove("benar"); }
+    });
+  });
+  const fb = document.getElementById("dd-feedback-"+jenis);
+  if(total===0){ fb.innerHTML = `<div class="feedback salah">Belum ada kartu yang dipindahkan.</div>`; return; }
+  if(benar===total){
+    bunyiBenar();
+    fb.innerHTML = `<div class="feedback benar">🎉 Hebat! Semua kartu sudah benar (${benar}/${total}). +15 poin!</div>`;
+    tambahPoin(15,"Aktivitas selesai dengan benar");
+  } else {
+    bunyiSalah();
+    fb.innerHTML = `<div class="feedback salah">Sebagian kartu belum tepat (${benar}/${total} benar). Coba periksa kembali!</div>`;
+    tambahPoin(3,"Sudah mencoba aktivitas");
+  }
+}
+
+/* ============================================================
+   LATIHAN SOAL PER MATERI (5 OPSI)
+============================================================ */
+function renderLatihan(m){
+  const box = document.getElementById("latihanBox");
+  if(!m.latihan || !m.latihan.length){ box.innerHTML=""; return; }
+  box.innerHTML = `<div class="kartu biru"><h3>📝 Latihan Soal (5 Opsi + HOTS)</h3>${m.latihan.map((s,idx)=>soalHTML(s, `lat-${m.id}-${idx}`)).join("")}</div>`;
+}
+function soalHTML(s, idPrefix){
+  return `<div class="soal" id="${idPrefix}">
+    <div class="pertanyaan">${s.soal}</div>
+    ${s.opsi.map((o,i)=>`<label class="opsi" onclick="pilihPG(this,'${idPrefix}',${i},${s.jawab},'${s.bahas.replace(/'/g,"\\'")}')">${String.fromCharCode(65+i)}. ${o}</label>`).join("")}
+    <div class="feedback" id="fb-${idPrefix}"></div>
+  </div>`;
+}
+function pilihPG(el, idPrefix, opsiIdx, jawab, bahas){
+  const parent = el.closest(".soal");
+  parent.querySelectorAll(".opsi").forEach(o=>o.classList.remove("terpilih","benar","salah"));
+  el.classList.add("terpilih");
+  const fb = document.getElementById("fb-"+idPrefix);
+  if(opsiIdx === jawab){
+    el.classList.add("benar");
+    fb.className = "feedback benar";
+    fb.textContent = "✅ Benar! " + bahas;
+    bunyiBenar();
+    if(!jawabanLatihan[idPrefix]){ jawabanLatihan[idPrefix] = true; tambahPoin(5,"Latihan soal benar"); }
+  } else {
+    el.classList.add("salah");
+    parent.querySelectorAll(".opsi")[jawab].classList.add("benar");
+    fb.className = "feedback salah";
+    fb.textContent = "❌ Kurang tepat. " + bahas;
+    bunyiSalah();
+  }
+}
+
+/* ============================================================
+   KUIS AKHIR VIRUS (15 SOAL HOTS + 5 OPSI)
+============================================================ */
+const kuisSoal = [
+  {tipe:"pg", soal:"Virus disebut sebagai makhluk peralihan karena...",
+   opsi:["Hanya dapat hidup di air","Memiliki ciri benda hidup dan tak hidup","Tidak memiliki asam nukleat","Dapat dilihat mata telanjang","Tidak dapat bereplikasi"],
+   jawab:1, bahas:"Virus memiliki ciri hidup (bereproduksi) dan tak hidup (dapat dikristalkan)."},
+  {tipe:"pg", soal:"Bagian virus yang berfungsi melindungi asam nukleat adalah...",
+   opsi:["Kapsid","Ekor","Serabut ekor","Enzim","Sitoplasma"],
+   jawab:0, bahas:"Kapsid adalah selubung protein yang melindungi asam nukleat."},
+  {tipe:"pg", soal:"Ilmuwan yang pertama kali mengkristalkan virus mosaik tembakau adalah...",
+   opsi:["Adolf Mayer","Dmitri Ivanovsky","Martinus Beijerinck","Wendell Stanley","Louis Pasteur"],
+   jawab:3, bahas:"Wendell Stanley (1935) mengkristalkan TMV."},
+  {tipe:"pg", soal:"[HOTS] Seorang siswa menemukan bahwa ekstrak daun tembakau sakit tetap dapat menularkan penyakit setelah disaring dengan filter bakteri. Kesimpulan yang paling tepat adalah...",
+   opsi:["Penyebab penyakit adalah bakteri berukuran besar","Penyebab penyakit berukuran lebih kecil dari bakteri (virus)","Penyakit tidak menular","Penyebab penyakit adalah jamur","Filter bakteri tidak berfungsi"],
+   jawab:1, bahas:"Lolosnya agen melalui filter bakteri menunjukkan ukurannya lebih kecil dari bakteri → virus."},
+  {tipe:"pg", soal:"Siklus replikasi virus yang diakhiri dengan pecahnya sel inang disebut...",
+   opsi:["Siklus lisogenik","Siklus litik","Siklus karbon","Siklus nitrogen","Siklus sel"],
+   jawab:1, bahas:"Siklus litik berakhir dengan lisis (pecahnya sel inang)."},
+  {tipe:"pg", soal:"Pada siklus lisogenik, DNA virus yang menyisip ke DNA inang disebut...",
+   opsi:["Kapsid","Profag","Kapsomer","Nukleoid","Plasmid"],
+   jawab:1, bahas:"Profag = DNA virus yang menyisip ke DNA inang."},
+  {tipe:"pg", soal:"[HOTS] Dua siswa berdebat: siswa A berpendapat virus adalah makhluk hidup, siswa B berpendapat virus adalah benda mati. Argumen yang paling tepat adalah...",
+   opsi:["Virus hanya benda mati karena dapat dikristalkan","Virus hanya makhluk hidup karena memiliki DNA","Virus bersifat peralihan: memiliki ciri hidup (bereproduksi di sel inang) dan ciri tak hidup (dapat dikristalkan)","Virus bukan keduanya karena tidak memiliki sel","Virus adalah bakteri kecil"],
+   jawab:2, bahas:"Virus bersifat peralihan; tidak dapat digolongkan sepenuhnya hidup atau mati."},
+  {tipe:"pg", soal:"[HOTS] Virus HIV dapat bertahun-tahun tidak menimbulkan gejala. Mekanisme yang paling tepat adalah...",
+   opsi:["HIV langsung menghancurkan semua sel","HIV melakukan siklus lisogenik dan DNA-nya menyisip ke DNA sel inang","HIV tidak memiliki asam nukleat","HIV hanya menyerang bakteri","HIV tidak dapat menginfeksi manusia"],
+   jawab:1, bahas:"Siklus lisogenik memungkinkan virus 'dormant' di dalam DNA sel inang."},
+  {tipe:"pg", soal:"[HOTS] Mengapa pemberian antibiotik pada penderita influenza tidak dianjurkan?",
+   opsi:["Antibiotik mempercepat penyembuhan influenza","Antibiotik tidak efektif melawan virus dan dapat memicu resistensi bakteri","Antibiotik membunuh virus influenza","Antibiotik meningkatkan imun tubuh","Antibiotik adalah antiviral"],
+   jawab:1, bahas:"Antibiotik hanya untuk bakteri; penggunaan sembarangan memicu resistensi."},
+  {tipe:"pg", soal:"[HOTS] Sebuah desa mengalami wabah demam berdarah. Tindakan pencegahan yang paling tepat dan berbasis ilmiah adalah...",
+   opsi:["Memberi antibiotik massal","Memberantas nyamuk Aedes aegypti dengan 3M Plus dan menjaga kebersihan lingkungan","Menutup semua sekolah selamanya","Menyemprotkan insektisida ke semua makanan","Mengisolasi semua warga"],
+   jawab:1, bahas:"DBD ditularkan nyamuk Aedes; pemberantasan vektor adalah cara paling tepat."},
+  {tipe:"bs", soal:"Virus dapat dikristalkan dan tetap aktif saat kembali berada di sel hidup.", jawab:true, bahas:"Virus dapat dikristalkan (ciri tak hidup) dan aktif kembali di sel hidup."},
+  {tipe:"bs", soal:"Antibiotik efektif untuk membunuh virus.", jawab:false, bahas:"Antibiotik hanya membunuh bakteri, bukan virus."},
+  {tipe:"bs", soal:"Bakteriofag adalah virus yang menyerang bakteri.", jawab:true, bahas:"Bakteriofag = virus pemakan bakteri."},
+  {tipe:"pgk", soal:"[HOTS] Manakah pernyataan yang benar tentang virus? (Pilih semua yang benar)",
+   opsi:["Virus memiliki asam nukleat DNA atau RNA","Virus dapat bereplikasi di luar sel hidup","Virus dapat dikristalkan","Virus memiliki sitoplasma","Virus dapat menular ke inang lain"],
+   jawab:[0,2,4], bahas:"Virus punya asam nukleat, dapat dikristalkan, dan menular. Virus tidak dapat bereplikasi di luar sel hidup dan tidak punya sitoplasma."},
+  {tipe:"pgk", soal:"[HOTS] Manakah yang merupakan manfaat virus bagi kehidupan? (Pilih semua yang benar)",
+   opsi:["Pembuatan vaksin","Vektor terapi gen","Biokontrol hama serangga","Penyebab COVID-19","Produksi protein rekombinan"],
+   jawab:[0,1,2,4], bahas:"Vaksin, vektor gen, biokontrol, dan protein rekombinan memanfaatkan virus. COVID-19 adalah kerugian, bukan manfaat."}
+];
+
+let jawabanKuis = {};
+
+function renderKuis(){
+  jawabanKuis = {};
+  const box = document.getElementById("kuisKonten");
+  box.innerHTML = kuisSoal.map((s,i)=>{
+    let inner = `<div class="pertanyaan">${i+1}. ${s.soal}</div>`;
+    if(s.tipe==="pg"){
+      inner += s.opsi.map((o,j)=>`<label class="opsi" onclick="pilihKuisPG(this,${i},${j})">${String.fromCharCode(65+j)}. ${o}</label>`).join("");
+    } else if(s.tipe==="bs"){
+      inner += `<div class="benar-salah">
+        <button onclick="pilihKuisBS(this,${i},true)">✅ Benar</button>
+        <button onclick="pilihKuisBS(this,${i},false)">❌ Salah</button>
+      </div>`;
+    } else if(s.tipe==="pgk"){
+      inner += `<div class="checklist">${s.opsi.map((o,j)=>`<label onclick="toggleKuisPGK(this,${i},${j})"><input type="checkbox" onclick="event.preventDefault()"> ${o}</label>`).join("")}</div>`;
+    }
+    return `<div class="soal" id="kuis-${i}">${inner}<div class="feedback" id="kuis-fb-${i}"></div></div>`;
+  }).join("");
+}
+function pilihKuisPG(el, soalIdx, opsiIdx){
+  const parent = el.closest(".soal");
+  parent.querySelectorAll(".opsi").forEach(o=>o.classList.remove("terpilih"));
+  el.classList.add("terpilih");
+  jawabanKuis[soalIdx] = opsiIdx;
+}
+function pilihKuisBS(el, soalIdx, val){
+  const parent = el.closest(".soal");
+  parent.querySelectorAll(".benar-salah button").forEach(b=>b.classList.remove("aktif"));
+  el.classList.add("aktif");
+  jawabanKuis[soalIdx] = val;
+}
+function toggleKuisPGK(el, soalIdx, opsiIdx){
+  el.classList.toggle("aktif");
+  const labels = [...el.closest(".checklist").querySelectorAll("label")];
+  const checked = labels.map((l,idx)=>l.classList.contains("aktif")?idx:null).filter(v=>v!==null);
+  jawabanKuis[soalIdx] = checked.sort((a,b)=>a-b);
+}
+
+/* ============================================================
+   PENILAIAN KUIS
+============================================================ */
+function selesaikanKuis(){
+  let benar = 0, salah = 0;
+  kuisSoal.forEach((s,i)=>{
+    const jawabUser = jawabanKuis[i];
+    let isBenar = false;
+    if(s.tipe==="pg") isBenar = (jawabUser === s.jawab);
+    else if(s.tipe==="bs") isBenar = (jawabUser === s.jawab);
+    else if(s.tipe==="pgk"){
+      const user = Array.isArray(jawabUser)?jawabUser:[];
+      const kunci = s.jawab;
+      isBenar = user.length===kunci.length && user.every(v=>kunci.includes(v));
+    }
+    const fb = document.getElementById(`kuis-fb-${i}`);
+    if(fb){
+      if(jawabUser===undefined || (Array.isArray(jawabUser)&&jawabUser.length===0)){
+        fb.className = "feedback salah";
+        fb.textContent = "⚠️ Belum dijawab. " + s.bahas;
+        salah++;
+      } else if(isBenar){
+        fb.className = "feedback benar";
+        fb.textContent = "✅ Benar! " + s.bahas;
+        benar++;
+      } else {
+        fb.className = "feedback salah";
+        fb.textContent = "❌ Kurang tepat. " + s.bahas;
+        salah++;
+      }
+    } else { if(isBenar) benar++; else salah++; }
+  });
+  const total = kuisSoal.length;
+  const persen = Math.round(benar/total*100);
+  kuisSudahSelesai = true;
+  updateProgress();
+  if(persen>=80){ tambahPoin(50,"Kuis akhir hebat!"); konfeti(); bunyiSelesai(); }
+  else { tambahPoin(20,"Kuis akhir selesai"); bunyiSalah(); }
+
+  let predikat, warna;
+  if(persen>=90){ predikat="🌟 Luar Biasa"; warna="#2e7d32"; }
+  else if(persen>=80){ predikat="👍 Baik Sekali"; warna="#1565c0"; }
+  else if(persen>=70){ predikat="🙂 Cukup Baik"; warna="#f9a825"; }
+  else if(persen>=60){ predikat="📖 Perlu Belajar Lagi"; warna="#ef6c00"; }
+  else { predikat="💪 Ayo Semangat Belajar!"; warna="#c62828"; }
+
+  const rekom = [];
+  kuisSoal.forEach((s,i)=>{
+    let isBenar = false;
+    const j = jawabanKuis[i];
+    if(s.tipe==="pg") isBenar = (j===s.jawab);
+    else if(s.tipe==="bs") isBenar = (j===s.jawab);
+    else if(s.tipe==="pgk"){ const u=Array.isArray(j)?j:[]; isBenar = u.length===s.jawab.length && u.every(v=>s.jawab.includes(v)); }
+    if(!isBenar) rekom.push(s.soal.slice(0,70)+"...");
+  });
+
+  showScreen("hasil");
+  document.getElementById("hasilKonten").innerHTML = `
+    <h2>Hasil Kuis Akhir Virus</h2>
+    <div class="skor-besar">${persen}%</div>
+    <div class="predikat" style="background:${warna};">${predikat}</div>
+    <div class="stat-grid">
+      <div class="stat"><b>${benar}</b>Jawaban Benar</div>
+      <div class="stat"><b>${salah}</b>Jawaban Salah</div>
+      <div class="stat"><b>${total}</b>Total Soal</div>
+      <div class="stat"><b>${poin}</b>Total Poin</div>
+    </div>
+    <p>${persen>=80 ? "🎉 Kamu sudah menguasai konsep virus dengan baik! Pertahankan semangat belajarmu." : "Jangan menyerah! Pelajari kembali materi yang belum dikuasai, lalu ulangi kuis."}</p>
+    ${rekom.length ? `<div class="rekomendasi"><b>📌 Rekomendasi materi yang perlu dipelajari kembali:</b><ul style="margin-left:18px;margin-top:6px;">${rekom.slice(0,5).map(r=>`<li>${r}</li>`).join("")}</ul></div>` : `<div class="rekomendasi"><b>🏆 Sempurna!</b> Semua soal dijawab dengan benar. Kamu siap menjadi ahli virologi!</div>`}
+  `;
+}
+function ulangiKuis(){
+  kuisSudahSelesai = false;
+  showScreen("kuis");
+}
+
+/* ============================================================
+   INISIALISASI
+============================================================ */
+document.addEventListener("DOMContentLoaded", ()=>{
+  updateProgress();
+  document.querySelectorAll(".dd-item").forEach(el=>{
+    el.addEventListener("dragstart", e=>{ dragged=el; e.dataTransfer.setData("text/plain",""); });
+  });
+});
+</script>
+</body>
+</html>
